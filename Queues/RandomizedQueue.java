@@ -15,13 +15,14 @@ import java.util.NoSuchElementException;
 public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private Item[] array;
-    private int n = 0;
+    private int n;
 
     /**
      * Constructs an empty randomized queue
      */
     public RandomizedQueue() {
-        array = (Item[]) new Object[1];
+        array = (Item[]) new Object[2];
+        n = 0;
     }
 
     /**
@@ -67,25 +68,21 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     public Item dequeue() {
         if (isEmpty())
             throw new NoSuchElementException("Queue underflow");
-
-        int index = 0;
-        Item item = null;
-        while (item == null) {
-            index = (StdRandom.uniform(n) + 1);
-            item = array[index];
-        }
-
+       
+        int randomIndex = StdRandom.uniform(n);
         Item[] copy = array;
-        while (index < n) { // shrink array
-            copy[index++] = array[index];
+        
+        Item item = array[randomIndex];
+        array[randomIndex] = null;                              // to avoid loitering
+        
+        for (int i = randomIndex; i < n-1; i++) {
+            array[i] = copy[i+1];
         }
-
-        --n;
-        array = copy;
-
-        if (n > 0 && n == array.length / 4)
-            resize(array.length / 2);
-
+       
+        n--;
+        
+        // shrink size of array if necessary
+        if (n > 0 && n == array.length/4) resize(array.length/2);
         return item;
     }
 
@@ -98,8 +95,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (isEmpty())
             throw new NoSuchElementException("Stack underflow");
 
-        n = StdRandom.uniform(n) + 1;
-        return array[n];
+        int index = 0;
+        Item item = null;
+        while (item == null) {
+            index = StdRandom.uniform(n);
+            item = array[index];
+        }       
+        return array[index];
     }
 
     private void resize(int capacity) {
@@ -114,14 +116,14 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
      * Returns an independent iterator over items in random order
      */
     public Iterator<Item> iterator() {
-        return new ReverseArrayIterator();
+        return new RandomizedQueueIterator();
     }
 
-    private class ReverseArrayIterator implements Iterator<Item> {
+    private class RandomizedQueueIterator implements Iterator<Item> {
 
         private int i = 0;
 
-        public ReverseArrayIterator() {
+        public RandomizedQueueIterator() {
             i = n - 1;
         }
 
@@ -156,12 +158,17 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             System.out.println(i);
         }
 
-        q.dequeue();
-        q.dequeue();
+        System.out.println("pop: " + q.dequeue());
 
         System.out.println("After: length=" + q.size());
         for (Integer i : q) {
             System.out.println(i);
         }
+        
+        System.out.println();
+        System.out.println(q.sample());
+        System.out.println(q.sample());
+        System.out.println(q.sample());
+        System.out.println(q.sample());
     }
 }

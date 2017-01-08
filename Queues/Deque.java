@@ -13,8 +13,8 @@ import java.util.NoSuchElementException;
 
 public class Deque<Item> implements Iterable<Item> {
 
-    private Node head = null;
-    private Node last = null;
+    private Node<Item> head = null;
+    private Node<Item> last = null;
     private int length = 0;
 
     /**
@@ -44,21 +44,22 @@ public class Deque<Item> implements Iterable<Item> {
      * @param item The item to be added to
      */
     public void addFirst(Item item) {
-        
+
         if (item == null)
             throw new java.lang.NullPointerException("Item is null");
-        
-        Node link = new Node();
+
+        Node<Item> link = new Node<Item>();
         link.item = item;
-        
-        if (isEmpty()) 
-            last = link;
-        else 
+
+        if (!isEmpty()) {
+            link.next = head;
             head.prev = link;
-        
-        link.next = head;
+        }
+
         head = link;
-        
+        if (last == null)
+            last = head;
+
         length++;
     }
 
@@ -71,20 +72,17 @@ public class Deque<Item> implements Iterable<Item> {
         if (item == null)
             throw new java.lang.NullPointerException("Item is null");
         
-        Node link = new Node();
+        Node<Item> link = new Node<Item>();
         link.item = item;
 
-        if (isEmpty()) {
-            last = link; // make it the last link
-        } 
-        else {
-            last.next = link; // make link a new last link
-            link.prev = last; // mark old last node as prev of new link
+        if (last != null) {
+            link.prev = last;
+            last.next = link;
         }
+        last = link;
+        if (head == null) head = last;
         
         length++;
-
-        last = link;                // point last to new last node
     }
 
     /**
@@ -97,20 +95,17 @@ public class Deque<Item> implements Iterable<Item> {
         if (isEmpty()) 
             throw new NoSuchElementException("Queue underflow");
             
-        Item item = head.item;
-
-        if (head.next == null) {
-            last = null;
-        } 
-        else {
-            head.next.prev = null;
-        }
-         
+        Node<Item> link = head;
         head = head.next;
-        
+
+        if (head == null)
+            last = null;
+        else
+            head.prev = null;
+
         length--;
-        
-        return item;
+
+        return link.item;
     }
 
     /**
@@ -123,21 +118,17 @@ public class Deque<Item> implements Iterable<Item> {
         if (isEmpty())
             throw new NoSuchElementException("Queue underflow");
 
-        Item item = last.item;
+        Node<Item> oldLast = last;
+        last = oldLast.prev;
 
-        // if only one link
-        if (head.next == null) {
+        if (last == null)
             head = null;
-        } 
-        else {
-            last.prev.next = null;
-        }
-
-        last = last.prev;
+        else
+            last.next = null;
 
         length--;
 
-        return item;
+        return oldLast.item;
     }
 
     /**
@@ -146,21 +137,21 @@ public class Deque<Item> implements Iterable<Item> {
      * @return iterator over items
      */
     public Iterator<Item> iterator() {
-        return new ListIterator();
+        return new DequeIterator();
     }
 
     /**
      * It represents a single node of a Linked-List
      */
-    private class Node {
-        
+    private static class Node<Item> {
+
         private Item item;
-        private Node next;
-        private Node prev;
+        private Node<Item> next;
+        private Node<Item> prev;
     }
         
-    private class ListIterator implements Iterator<Item> {
-        private Node current = head;
+    private class DequeIterator implements Iterator<Item> {
+        private Node<Item> current = head;
 
         public boolean hasNext() {
             return current != null;
