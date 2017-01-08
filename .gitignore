@@ -1,0 +1,11 @@
+Percolation/bin
+
+Percolation/src/*.class
+Percolation/src/*.txt
+Percolation/src/*.png
+
+Percolation/.classpath
+Percolation/.gitignore
+Percolation/.project
+Percolation/.settings/
+
