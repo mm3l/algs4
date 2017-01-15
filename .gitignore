@@ -5,7 +5,12 @@ Percolation/src/*.txt
 Percolation/src/*.png
 
 Percolation/.classpath
-Percolation/.gitignore
 Percolation/.project
 Percolation/.settings/
+
+8puzzle/bin
+8puzzle/test
+8puzzle/.classpath
+8puzzle/.project
+8puzzle/.settings/
 
